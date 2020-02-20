@@ -16,5 +16,5 @@ See COPYRIGHT
 
 For more information please visit:
 
-  * http://www.formateli.com/
+  * https://formateli.com/
   * http://www.tryton.org/
