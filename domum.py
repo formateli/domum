@@ -4,12 +4,24 @@
 class Group(tree(separator=' / '), ModelSQL, ModelView):
     'Domum Group'
     __name__ = 'domum.group'
-    # Company
+    company = fields.Many2One('company.company', 'Company', required=True,
+        states={
+            'readonly': True,
+            },
+        domain=[
+                ('id', If(Eval('context', {}).contains('company'), '=', '!='),
+                    Eval('context', {}).get('company', -1)),
+            ], select=True)
     name = fields.Char('Name', required=True)
     description = fields.Char('Description')
-    parent = fields.Many2One('domum.group', 'Parent', select=True)
-    childs = fields.One2Many('domum.group', 'parent',
-            string='Childs')
+    parent = fields.Many2One('domum.group', 'Parent', select=True,
+        domain=[
+            ('company', '=', Eval('company'))
+        ], depends=['company'])
+    childs = fields.One2Many('domum.group', 'parent', string='Childs',
+        domain=[
+            ('company', '=', Eval('company'))
+        ], depends=['company'])
     order = fields.Integer('Order')
 
     @classmethod
@@ -28,14 +40,11 @@ class Unit(ModelSQL, ModelView):
         'Group', required=True)
     name = fields.Char('Name', states={'required': True})
     description = fields.Char('Description', size=None)
-    party = fields.Many2One('party.party',
-        'Party', states={'required': True})
     type = fields.Selection([
-            ('storehouse', 'Storehouse'),
             ('apartment', 'Apartment'),
             ('house', 'House'),
-            ('parking', 'Parking')
         ], 'Type', required=True)
+    party = fields.Many2One('party.party', 'Party', required=True)
     state = fields.Selection([
             ('unknown', 'Unknown'),
             ('rented', 'Rented'),
@@ -53,6 +62,8 @@ class Unit(ModelSQL, ModelView):
                 ('category', '=', -1)),
             ],
         depends=['product_uom_category'])
+    extensions = fields.One2Many('domum.unit.extension',
+        'unit', 'Extensions')
 
     owners = fields.Many2Many(
         'poliza.pagos-liquidacion.vendedor',
@@ -72,9 +83,28 @@ class Unit(ModelSQL, ModelView):
             'invisible': Not(Bool(Eval('vendedor'))),
         }, depends=['company', 'currency', 'vendedor', 'state'])
 
-
-    owners = fields.One2Many('party.party',
-        'domum_unit', 'Owners')
-    tenants = fields.One2Many('party.party',
+    residents = fields.One2Many('party.party',
+        'domum_unit', 'Tenants')
+    agents = fields.One2Many('party.party',
         'domum_unit', 'Tenants')
 
+
+class Extension(ModelSQL, ModelView):
+    'Domum Unit Extension'
+    __name__ = 'domum.unit.extension'
+    unit = fields.Many2One('domum.unit', 'Unit', required=True)
+    name = fields.Char('Name', states={'required': True})
+    description = fields.Char('Description', size=None)
+    type = fields.Selection([
+            ('storehouse', 'Storehouse'),
+            ('parking', 'Parking')
+        ], 'Type', required=True)
+    order = fields.Integer('Order')
+    #surface
+    unit = fields.Many2One('product.uom', 'Surface',
+        domain=[
+            If(Bool(Eval('product_uom_category')),
+                ('category', '=', Eval('product_uom_category')),
+                ('category', '=', -1)),
+            ],
+        depends=['product_uom_category'])
