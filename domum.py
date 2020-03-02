@@ -54,39 +54,49 @@ class Unit(ModelSQL, ModelView):
             ('occupied', 'occupied')
         ], 'State', required=True)
     order = fields.Integer('Order')
-    #surface
-    unit = fields.Many2One('product.uom', 'Surface',
+    surface = fields.Float('Surface',
+        digits=(16, Eval('unit_digits', 2)),
+        depends=['unit_digits'])
+    unit_digits = fields.Function(fields.Integer('Unit Digits'),
+        'on_change_with_unit_digits')
+    uom = fields.Many2One('product.uom', 'Unit',
         domain=[
-            If(Bool(Eval('product_uom_category')),
-                ('category', '=', Eval('product_uom_category')),
-                ('category', '=', -1)),
+                ('category', '=', Eval('uom_category')),
             ],
-        depends=['product_uom_category'])
+        depends=['uom_category'])
+    uom_category = fields.Function(
+        fields.Many2One('product.uom.category', 'Uom Category'),
+        'get_uom_category')
     extensions = fields.One2Many('domum.unit.extension',
         'unit', 'Extensions')
-
     owners = fields.Many2Many(
-        'poliza.pagos-liquidacion.vendedor',
-        'unit', 'party', 'Owners',
-        domain=[
-            ('company', '=', Eval('company')),
-            ('currency', '=', Eval('currency')),
-            ('vendedor', '=', Eval('vendedor')),
-            If(
-                In(Eval('state'), ['borrador', 'procesado']),
-                ('state', '=', 'liq_cia'),
-                ('state', '!=', '')
-            )
-        ],
-        states={
-            'readonly': Not(In(Eval('state'), ['borrador',])),
-            'invisible': Not(Bool(Eval('vendedor'))),
-        }, depends=['company', 'currency', 'vendedor', 'state'])
+        'domun.unit-party.owner',
+        'owner', 'unit', 'Owners')
+    residents = fields.Many2Many(
+        'domun.unit-party.resident',
+        'resident', 'unit', 'Residents')
+    agents = fields.Many2Many(
+        'domun.unit-party.agent',
+        'agent', 'unit', 'Agents')
 
-    residents = fields.One2Many('party.party',
-        'domum_unit', 'Tenants')
-    agents = fields.One2Many('party.party',
-        'domum_unit', 'Tenants')
+    @classmethod
+    def __setup__(cls):
+        super(Unit, cls).__setup__()
+        cls._order = [
+                ('order', 'ASC'),
+                ('name', 'ASC'),
+            ]
+
+    @fields.depends('uom')
+    def on_change_with_unit_digits(self, name=None):
+        if self.uom:
+            return self.uom.digits
+        return 2
+
+    @fields.depends()
+    def get_uom_category(self, name=None):
+        ModelData = Pool().get('ir.model.data')
+        return ModelData.get_id('product', 'uom_cat_surface')
 
 
 class Extension(ModelSQL, ModelView):
@@ -100,7 +110,13 @@ class Extension(ModelSQL, ModelView):
             ('parking', 'Parking')
         ], 'Type', required=True)
     order = fields.Integer('Order')
-    #surface
+    surface = fields.Float('Surface',
+        digits=(16, Eval('unit_digits', 2)),
+        depends=['unit_digits'])
+
+    unit_digits = fields.Function(fields.Integer('Unit Digits'),
+        'on_change_with_unit_digits')
+
     unit = fields.Many2One('product.uom', 'Surface',
         domain=[
             If(Bool(Eval('product_uom_category')),
@@ -108,3 +124,31 @@ class Extension(ModelSQL, ModelView):
                 ('category', '=', -1)),
             ],
         depends=['product_uom_category'])
+
+
+class UnitOwner(ModelSQL):
+    'Domum Unit - Owner'
+    __name__ = 'domun.unit-party.owner'
+    unit = fields.Many2One('domum.unit',
+        'Unit', ondelete='CASCADE', select=True, required=True)
+    owner = fields.Many2One('party.party',
+        'Owner', ondelete='CASCADE', select=True, required=True)
+
+
+class UnitResident(ModelSQL):
+    'Domum Unit - Resident'
+    __name__ = 'domun.unit-party.resident'
+    unit = fields.Many2One('domum.unit',
+        'Unit', ondelete='CASCADE', select=True, required=True)
+    resident = fields.Many2One('party.party',
+        'Resident', ondelete='CASCADE', select=True, required=True)
+
+
+class UnitAgent(ModelSQL):
+    'Domum Unit - Agent'
+    __name__ = 'domun.unit-party.agent'
+    unit = fields.Many2One('domum.unit',
+        'Unit', ondelete='CASCADE', select=True, required=True)
+    agent = fields.Many2One('party.party',
+        'Agent', ondelete='CASCADE', select=True, required=True)
+
