@@ -1,5 +1,13 @@
 #This file is part of domum project for Tryton. The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from trytond.model import ModelView, ModelSQL, fields, tree
+from trytond.pyson import Bool, Eval, If
+
+__all__ = [
+        'Group', 'Unit', 'Extension',
+        'UnitOwner', 'UnitResident', 'UnitAgent',
+    ]
+
 
 class Group(tree(separator=' / '), ModelSQL, ModelView):
     'Domum Group'
@@ -26,20 +34,60 @@ class Group(tree(separator=' / '), ModelSQL, ModelView):
 
     @classmethod
     def __setup__(cls):
-        super(Category, cls).__setup__()
+        super(Group, cls).__setup__()
         cls._order = [
                 ('order', 'ASC'),
                 ('name', 'ASC'),
             ]
 
 
-class Unit(ModelSQL, ModelView):
+class _UnitMixin(ModelSQL, ModelView):
+    name = fields.Char('Name', states={'required': True})
+    description = fields.Char('Description', size=None)
+    order = fields.Integer('Order')
+    surface = fields.Float('Surface',
+        digits=(16, Eval('unit_digits', 2)),
+        depends=['unit_digits'])
+    uom = fields.Many2One('product.uom', 'Unit',
+        states={
+            'required': Bool(Eval('surface')), 
+        },
+        domain=[
+                ('category', '=', Eval('uom_category')),
+
+            ],
+        depends=['surface', 'uom_category'])
+    unit_digits = fields.Function(fields.Integer('Unit Digits'),
+        'on_change_with_unit_digits')
+    uom_category = fields.Function(
+        fields.Many2One('product.uom.category', 'Uom Category'),
+        'get_uom_category')
+
+    @fields.depends('uom')
+    def on_change_with_unit_digits(self, name=None):
+        if self.uom:
+            return self.uom.digits
+        return 2
+
+    @fields.depends()
+    def get_uom_category(self, name=None):
+        ModelData = Pool().get('ir.model.data')
+        return ModelData.get_id('product', 'uom_cat_surface')
+
+    @classmethod
+    def __setup__(cls):
+        super(_UnitMixin, cls).__setup__()
+        cls._order = [
+                ('order', 'ASC'),
+                ('name', 'ASC'),
+            ]
+
+
+class Unit(_UnitMixin):
     'Domum Unit'
     __name__ = 'domum.unit'
     group = fields.Many2One('domum.group',
         'Group', required=True)
-    name = fields.Char('Name', states={'required': True})
-    description = fields.Char('Description', size=None)
     type = fields.Selection([
             ('apartment', 'Apartment'),
             ('house', 'House'),
@@ -53,20 +101,6 @@ class Unit(ModelSQL, ModelView):
             ('unoccupied', 'Unoccupied'),
             ('occupied', 'occupied')
         ], 'State', required=True)
-    order = fields.Integer('Order')
-    surface = fields.Float('Surface',
-        digits=(16, Eval('unit_digits', 2)),
-        depends=['unit_digits'])
-    unit_digits = fields.Function(fields.Integer('Unit Digits'),
-        'on_change_with_unit_digits')
-    uom = fields.Many2One('product.uom', 'Unit',
-        domain=[
-                ('category', '=', Eval('uom_category')),
-            ],
-        depends=['uom_category'])
-    uom_category = fields.Function(
-        fields.Many2One('product.uom.category', 'Uom Category'),
-        'get_uom_category')
     extensions = fields.One2Many('domum.unit.extension',
         'unit', 'Extensions')
     owners = fields.Many2Many(
@@ -79,51 +113,15 @@ class Unit(ModelSQL, ModelView):
         'domun.unit-party.agent',
         'agent', 'unit', 'Agents')
 
-    @classmethod
-    def __setup__(cls):
-        super(Unit, cls).__setup__()
-        cls._order = [
-                ('order', 'ASC'),
-                ('name', 'ASC'),
-            ]
 
-    @fields.depends('uom')
-    def on_change_with_unit_digits(self, name=None):
-        if self.uom:
-            return self.uom.digits
-        return 2
-
-    @fields.depends()
-    def get_uom_category(self, name=None):
-        ModelData = Pool().get('ir.model.data')
-        return ModelData.get_id('product', 'uom_cat_surface')
-
-
-class Extension(ModelSQL, ModelView):
+class Extension(_UnitMixin):
     'Domum Unit Extension'
     __name__ = 'domum.unit.extension'
     unit = fields.Many2One('domum.unit', 'Unit', required=True)
-    name = fields.Char('Name', states={'required': True})
-    description = fields.Char('Description', size=None)
     type = fields.Selection([
             ('storehouse', 'Storehouse'),
             ('parking', 'Parking')
         ], 'Type', required=True)
-    order = fields.Integer('Order')
-    surface = fields.Float('Surface',
-        digits=(16, Eval('unit_digits', 2)),
-        depends=['unit_digits'])
-
-    unit_digits = fields.Function(fields.Integer('Unit Digits'),
-        'on_change_with_unit_digits')
-
-    unit = fields.Many2One('product.uom', 'Surface',
-        domain=[
-            If(Bool(Eval('product_uom_category')),
-                ('category', '=', Eval('product_uom_category')),
-                ('category', '=', -1)),
-            ],
-        depends=['product_uom_category'])
 
 
 class UnitOwner(ModelSQL):
@@ -151,4 +149,3 @@ class UnitAgent(ModelSQL):
         'Unit', ondelete='CASCADE', select=True, required=True)
     agent = fields.Many2One('party.party',
         'Agent', ondelete='CASCADE', select=True, required=True)
-
