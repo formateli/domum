@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<!-- This file is part of domum project for Tryton. The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<tryton>
+    <data>
+        <record model="res.group" id="group_domum">
+            <field name="name">Domum</field>
+        </record>
+        <record model="res.group" id="group_domum_admin">
+            <field name="name">Domum Administration</field>
+        </record>
+        <record model="res.user-res.group" id="user_admin_group_domum">
+            <field name="user" ref="res.user_admin"/>
+            <field name="group" ref="group_domum"/>
+        </record>
+        <record model="res.user-res.group" id="user_admin_group_domum_admin">
+            <field name="user" ref="res.user_admin"/>
+            <field name="group" ref="group_domum_admin"/>
+        </record>
+
+        <record model="ir.ui.icon" id="domum_icon">
+            <field name="name">domum</field>
+            <field name="path">icons/domum.svg</field>
+        </record>
+
+        <menuitem name="Domum" id="menu_domum" sequence="5"
+            icon="domum"/>
+        <record model="ir.ui.menu-res.group" id="menu_domum_group_domum">
+            <field name="menu" ref="menu_domum"/>
+            <field name="group" ref="group_domum"/>
+        </record>
+
+        <menuitem name="Configuration" id="menu_configuration"
+            sequence="5" parent="menu_domum" icon="tryton-settings"/>
+        <record model="ir.ui.menu-res.group" id="menu_configuration_group_domum_admin">
+            <field name="menu" ref="menu_configuration"/>
+            <field name="group" ref="group_domum_admin"/>
+        </record>
+
+
+        <!-- Group -->
+
+        <record model="ir.ui.view" id="group_view_list">
+            <field name="model">domum.group</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="10"/>
+            <field name="name">group_list</field>
+        </record>
+        <record model="ir.ui.view" id="group_view_tree">
+            <field name="model">domum.group</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="field_childs">childs</field>
+            <field name="name">group_tree</field>
+        </record>
+        <record model="ir.ui.view" id="group_view_form">
+            <field name="model">domum.group</field>
+            <field name="type">form</field>
+            <field name="name">group_form</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_group_tree">
+            <field name="name">Groups</field>
+            <field name="res_model">domum.group</field>
+            <field name="domain" eval="[('parent', '=', None)]" pyson="1"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_group_tree_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="group_view_tree"/>
+            <field name="act_window" ref="act_group_tree"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_group_tree_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="group_view_form"/>
+            <field name="act_window" ref="act_group_tree"/>
+        </record>
+
+        <menuitem parent="menu_configuration" sequence="10"
+            action="act_group_tree" id="menu_group_tree"/>
+
+        <record model="ir.action.act_window" id="act_group_list">
+            <field name="name">Groups</field>
+            <field name="res_model">domum.group</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_group_list_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="group_view_list"/>
+            <field name="act_window" ref="act_group_list"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_group_list_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="group_view_form"/>
+            <field name="act_window" ref="act_group_list"/>
+        </record>
+        <menuitem parent="menu_group_tree"
+            sequence="10" id="menu_group_list"
+            action="act_group_list"/>
+
+        <record model="ir.model.access" id="access_domum_group">
+            <field name="model" search="[('model', '=', 'domum.group')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_domum_group_admin">
+            <field name="model" search="[('model', '=', 'domum.group')]"/>
+            <field name="group" ref="group_domum_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+
+        <!-- Unit -->
+
+        <record model="ir.ui.view" id="unit_view_form">
+            <field name="model">domum.unit</field>
+            <field name="type">form</field>
+            <field name="name">unit_form</field>
+        </record>
+        <record model="ir.ui.view" id="unit_view_tree">
+            <field name="model">domum.unit</field>
+            <field name="type">tree</field>
+            <field name="name">unit_tree</field>
+        </record>
+        <record model="ir.action.act_window" id="act_unit_form">
+            <field name="name">Units</field>
+            <field name="res_model">domum.unit</field>
+            <field name="search_value"></field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_unit_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="unit_view_tree"/>
+            <field name="act_window" ref="act_unit_form"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_unit_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="unit_view_form"/>
+            <field name="act_window" ref="act_unit_form"/>
+        </record>
+
+        <menuitem name="Units" id="menu_unit"
+            sequence="15" action="act_unit_form"
+            parent="menu_configuration"/>
+
+        <record model="ir.model.access" id="access_domum_unit">
+            <field name="model" search="[('model', '=', 'domum.unit')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_domum_unit_admin">
+            <field name="model" search="[('model', '=', 'domum.unit')]"/>
+            <field name="group" ref="group_domum_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+
+        <!-- Extension -->
+
+        <record model="ir.ui.view" id="extension_view_form">
+            <field name="model">domum.unit.extension</field>
+            <field name="type">form</field>
+            <field name="name">extension_form</field>
+        </record>
+        <record model="ir.ui.view" id="extension_view_tree">
+            <field name="model">domum.unit.extension</field>
+            <field name="type">tree</field>
+            <field name="name">extension_tree</field>
+        </record>
+
+        <record model="ir.model.access" id="access_domum_extension">
+            <field name="model" search="[('model', '=', 'domum.unit.extension')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_domum_extension_admin">
+            <field name="model" search="[('model', '=', 'domum.unit.extension')]"/>
+            <field name="group" ref="group_domum_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+    </data>
+</tryton>

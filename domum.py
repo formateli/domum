@@ -30,6 +30,8 @@ class Group(tree(separator=' / '), ModelSQL, ModelView):
         domain=[
             ('company', '=', Eval('company'))
         ], depends=['company'])
+    units = fields.One2Many('domum.unit',
+            'group', 'Units')
     order = fields.Integer('Order')
 
     @classmethod
@@ -42,7 +44,7 @@ class Group(tree(separator=' / '), ModelSQL, ModelView):
 
 
 class _UnitMixin(ModelSQL, ModelView):
-    name = fields.Char('Name', states={'required': True})
+    name = fields.Char('Name')
     description = fields.Char('Description', size=None)
     order = fields.Integer('Order')
     surface = fields.Float('Surface',

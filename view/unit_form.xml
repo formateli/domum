@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- This file is part of domum project for Tryton. The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<form col="6">
+    <label name="party"/>
+    <field name="party"/>
+    <label name="group"/>
+    <field name="group"/>
+    <label name="type"/>
+    <field name="type"/>
+    <label name="description"/>
+    <field name="description" colspan="3"/>
+    <label name="order"/>
+    <field name="order"/>
+    <label name="surface"/>
+    <field name="surface"/>
+    <label name="uom"/>
+    <field name="uom"/>
+    <label name="state"/>
+    <field name="state"/>
+    <notebook colspan="6">
+        <page name="owners">
+            <field name="owners" colspan="4"/>
+        </page>
+        <page name="residents">
+            <field name="residents" colspan="4"/>
+        </page>
+        <page name="agents">
+            <field name="agents" colspan="4"/>
+        </page>
+        <page name="extensions">
+            <field name="extensions" colspan="4"/>
+        </page>
+    </notebook>
+</form>
