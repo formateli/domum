@@ -1,5 +1,7 @@
 #This file is part of domum project for Tryton. The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from trytond.transaction import Transaction
+from trytond.pool import Pool
 from trytond.model import ModelView, ModelSQL, fields, tree
 from trytond.pyson import Bool, Eval, If
 
@@ -42,6 +44,10 @@ class Group(tree(separator=' / '), ModelSQL, ModelView):
                 ('name', 'ASC'),
             ]
 
+    @staticmethod
+    def default_company():
+        return Transaction().context.get('company')
+
 
 class _UnitMixin(ModelSQL, ModelView):
     name = fields.Char('Name')
@@ -65,6 +71,12 @@ class _UnitMixin(ModelSQL, ModelView):
         fields.Many2One('product.uom.category', 'Uom Category'),
         'get_uom_category')
 
+    @staticmethod
+    def default_uom_category():
+        ModelData = Pool().get('ir.model.data')
+        print(ModelData.get_id('product', 'uom_cat_surface'))
+        return ModelData.get_id('product', 'uom_cat_surface')
+
     @fields.depends('uom')
     def on_change_with_unit_digits(self, name=None):
         if self.uom:
@@ -73,8 +85,7 @@ class _UnitMixin(ModelSQL, ModelView):
 
     @fields.depends()
     def get_uom_category(self, name=None):
-        ModelData = Pool().get('ir.model.data')
-        return ModelData.get_id('product', 'uom_cat_surface')
+        return self.default_uom_category()
 
     @classmethod
     def __setup__(cls):
@@ -101,7 +112,7 @@ class Unit(_UnitMixin):
             ('for_rent', 'For rent'),
             ('for_sale', 'For sale'),
             ('unoccupied', 'Unoccupied'),
-            ('occupied', 'occupied')
+            ('occupied', 'Occupied')
         ], 'State', required=True)
     extensions = fields.One2Many('domum.unit.extension',
         'unit', 'Extensions')
