@@ -50,7 +50,6 @@ class Group(tree(separator=' / '), ModelSQL, ModelView):
 
 
 class _UnitMixin(ModelSQL, ModelView):
-    name = fields.Char('Name')
     description = fields.Char('Description', size=None)
     order = fields.Integer('Order')
     surface = fields.Float('Surface',
@@ -74,7 +73,6 @@ class _UnitMixin(ModelSQL, ModelView):
     @staticmethod
     def default_uom_category():
         ModelData = Pool().get('ir.model.data')
-        print(ModelData.get_id('product', 'uom_cat_surface'))
         return ModelData.get_id('product', 'uom_cat_surface')
 
     @fields.depends('uom')
@@ -126,10 +124,18 @@ class Unit(_UnitMixin):
         'domun.unit-party.agent',
         'agent', 'unit', 'Agents')
 
+    def get_rec_name(self, name):
+        return self.party.rec_name
+
+    @classmethod
+    def search_rec_name(cls, name, clause):
+        return [('party.rec_name',) + tuple(clause[1:])]
+
 
 class Extension(_UnitMixin):
     'Domum Unit Extension'
     __name__ = 'domum.unit.extension'
+    name = fields.Char('Name', required=True)
     unit = fields.Many2One('domum.unit', 'Unit', required=True)
     type = fields.Selection([
             ('storehouse', 'Storehouse'),
