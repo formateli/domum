@@ -4,10 +4,10 @@ this repository contains the full copyright notices and license terms. -->
 <form col="6">
     <label name="unit"/>
     <field name="unit" colspan="5"/>
-    <label name="name"/>
-    <field name="name"/>
     <label name="type"/>
     <field name="type"/>
+    <label name="name"/>
+    <field name="name"/>
     <newline/>
     <label name="description"/>
     <field name="description" colspan="5"/>

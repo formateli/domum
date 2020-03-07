@@ -90,7 +90,6 @@ class _UnitMixin(ModelSQL, ModelView):
         super(_UnitMixin, cls).__setup__()
         cls._order = [
                 ('order', 'ASC'),
-                ('name', 'ASC'),
             ]
 
 
@@ -141,6 +140,11 @@ class Extension(_UnitMixin):
             ('storehouse', 'Storehouse'),
             ('parking', 'Parking')
         ], 'Type', required=True)
+
+    @classmethod
+    def __setup__(cls):
+        super(Extension, cls).__setup__()
+        cls._order.append(('name', 'ASC'))
 
 
 class UnitOwner(ModelSQL):
