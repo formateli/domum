@@ -1,13 +1,13 @@
-#This file is part of domum project for Tryton. The COPYRIGHT file at the top level of
-#this repository contains the full copyright notices and license terms.
+# The COPYRIGHT file at the top level of this repository contains
+# the full copyright notices and license terms.
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 from trytond.model import ModelView, ModelSQL, fields, tree
 from trytond.pyson import Bool, Eval, If
 
 __all__ = [
-        'Group', 'Unit', 'Extension',
-        'UnitOwner', 'UnitResident', 'UnitAgent',
+    'Group', 'Unit', 'Extension',
+    'UnitOwner', 'UnitResident', 'UnitAgent',
     ]
 
 
@@ -19,9 +19,9 @@ class Group(tree(separator=' / '), ModelSQL, ModelView):
             'readonly': True,
             },
         domain=[
-                ('id', If(Eval('context', {}).contains('company'), '=', '!='),
-                    Eval('context', {}).get('company', -1)),
-            ], select=True)
+            ('id', If(Eval('context', {}).contains('company'), '=', '!='),
+                Eval('context', {}).get('company', -1)),
+        ], select=True)
     name = fields.Char('Name', required=True)
     description = fields.Char('Description')
     parent = fields.Many2One('domum.group', 'Parent', select=True,
@@ -40,8 +40,8 @@ class Group(tree(separator=' / '), ModelSQL, ModelView):
     def __setup__(cls):
         super(Group, cls).__setup__()
         cls._order = [
-                ('order', 'ASC'),
-                ('name', 'ASC'),
+            ('order', 'ASC'),
+            ('name', 'ASC'),
             ]
 
     @staticmethod
@@ -57,12 +57,11 @@ class _UnitMixin(ModelSQL, ModelView):
         depends=['unit_digits'])
     uom = fields.Many2One('product.uom', 'Unit',
         states={
-            'required': Bool(Eval('surface')), 
+            'required': Bool(Eval('surface')),
         },
         domain=[
-                ('category', '=', Eval('uom_category')),
-
-            ],
+            ('category', '=', Eval('uom_category')),
+        ],
         depends=['surface', 'uom_category'])
     unit_digits = fields.Function(fields.Integer('Unit Digits'),
         'on_change_with_unit_digits')
@@ -89,7 +88,7 @@ class _UnitMixin(ModelSQL, ModelView):
     def __setup__(cls):
         super(_UnitMixin, cls).__setup__()
         cls._order = [
-                ('order', 'ASC'),
+            ('order', 'ASC'),
             ]
 
 
@@ -99,29 +98,32 @@ class Unit(_UnitMixin):
     group = fields.Many2One('domum.group',
         'Group', required=True)
     type = fields.Selection([
-            ('apartment', 'Apartment'),
-            ('house', 'House'),
+        ('apartment', 'Apartment'),
+        ('house', 'House'),
         ], 'Type', required=True)
-    party = fields.Many2One('party.party', 'Party', required=True)
+    party = fields.Many2One('party.party', 'Party', required=True,
+        domain=[
+            ('party_type', '=', 'domum')
+        ])
     state = fields.Selection([
-            ('unknown', 'Unknown'),
-            ('rented', 'Rented'),
-            ('for_rent', 'For rent'),
-            ('for_sale', 'For sale'),
-            ('unoccupied', 'Unoccupied'),
-            ('occupied', 'Occupied')
+        ('unknown', 'Unknown'),
+        ('rented', 'Rented'),
+        ('for_rent', 'For rent'),
+        ('for_sale', 'For sale'),
+        ('unoccupied', 'Unoccupied'),
+        ('occupied', 'Occupied')
         ], 'State', required=True)
     extensions = fields.One2Many('domum.unit.extension',
         'unit', 'Extensions')
     owners = fields.Many2Many(
         'domun.unit-party.owner',
-        'owner', 'unit', 'Owners')
+        'unit', 'owner', 'Owners')
     residents = fields.Many2Many(
         'domun.unit-party.resident',
-        'resident', 'unit', 'Residents')
+        'unit', 'resident', 'Residents')
     agents = fields.Many2Many(
         'domun.unit-party.agent',
-        'agent', 'unit', 'Agents')
+        'unit', 'agent', 'Agents')
 
     def get_rec_name(self, name):
         return self.party.rec_name
@@ -137,8 +139,8 @@ class Extension(_UnitMixin):
     name = fields.Char('Name', required=True)
     unit = fields.Many2One('domum.unit', 'Unit', required=True)
     type = fields.Selection([
-            ('storehouse', 'Storehouse'),
-            ('parking', 'Parking')
+        ('storehouse', 'Storehouse'),
+        ('parking', 'Parking')
         ], 'Type', required=True)
 
     @classmethod
