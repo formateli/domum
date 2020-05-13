@@ -18,6 +18,10 @@ the full copyright notices and license terms. -->
     <field name="uom"/>
     <label name="state"/>
     <field name="state"/>
+    <label name="amount"/>
+    <field name="amount"/>
+    <label name="currency"/>
+    <field name="currency"/>
     <notebook colspan="6">
         <page name="owners">
             <field name="owners" colspan="4"/>

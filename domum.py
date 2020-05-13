@@ -124,6 +124,38 @@ class Unit(_UnitMixin):
     agents = fields.Many2Many(
         'domun.unit-party.agent',
         'unit', 'agent', 'Agents')
+    currency = fields.Many2One('currency.currency', 'Currency', required=True,
+        states={
+            'readonly': True,
+        })
+    currency_digits = fields.Function(fields.Integer('Currency Digits'),
+        'on_change_with_currency_digits')
+    amount = fields.Numeric('Amount',
+        digits=(16, Eval('currency_digits', 2)),
+        depends=['currency_digits'])
+
+    @staticmethod
+    def default_currency():
+        Company = Pool().get('company.company')
+        company = Transaction().context.get('company')
+        if company:
+            company = Company(company)
+            return company.currency.id
+
+    @staticmethod
+    def default_currency_digits():
+        Company = Pool().get('company.company')
+        company = Transaction().context.get('company')
+        if company:
+            company = Company(company)
+            return company.currency.digits
+        return 2
+
+    @fields.depends('currency')
+    def on_change_with_currency_digits(self, name=None):
+        if self.currency:
+            return self.currency.digits
+        return 2
 
     def get_rec_name(self, name):
         return self.party.rec_name
