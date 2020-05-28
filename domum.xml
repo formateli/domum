@@ -37,6 +37,44 @@ the full copyright notices and license terms. -->
             <field name="group" ref="group_domum_admin"/>
         </record>
 
+        <!-- Configuration -->
+
+        <record model="ir.ui.view" id="domum_configuration_view_form">
+            <field name="model">domum.configuration</field>
+            <field name="type">form</field>
+            <field name="name">configuration_form</field>
+        </record>
+        <record model="ir.action.act_window" id="act_domum_configuration_form">
+            <field name="name">Configuration</field>
+            <field name="res_model">domum.configuration</field>
+        </record>
+        <record model="ir.action.act_window.view"
+                id="act_domum_configuration_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view" ref="domum_configuration_view_form"/>
+            <field name="act_window" ref="act_domum_configuration_form"/>
+        </record>
+        <menuitem parent="menu_configuration"
+            action="act_domum_configuration_form"
+            id="menu_configuration_configuration"
+            sequence="5" icon="tryton-list"/>
+
+        <record model="ir.model.access" id="access_configuration">
+            <field name="model" search="[('model', '=', 'domum.configuration')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <record model="ir.model.access" id="access_configuration_admin">
+            <field name="model" search="[('model', '=', 'domum.configuration')]"/>
+            <field name="group" ref="group_domum_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
 
         <!-- Group -->
 
@@ -112,7 +150,6 @@ the full copyright notices and license terms. -->
             <field name="perm_delete" eval="True"/>
         </record>
 
-
         <!-- Unit -->
 
         <record model="ir.ui.view" id="unit_view_form">
@@ -160,7 +197,6 @@ the full copyright notices and license terms. -->
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
-
 
         <!-- Extension -->
 

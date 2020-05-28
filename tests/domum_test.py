@@ -15,6 +15,7 @@ class DomumTestCase(ModuleTestCase):
     def test_domum(self):
         pool = Pool()
         Party = pool.get('party.party')
+        Configuration = pool.get('domum.configuration')
         Group = pool.get('domum.group')
         Unit = pool.get('domum.unit')
         Extension = pool.get('domum.unit.extension')
