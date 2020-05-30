@@ -96,8 +96,12 @@ class _UnitMixin(ModelSQL, ModelView):
 class Unit(_UnitMixin):
     'Domum Unit'
     __name__ = 'domum.unit'
-    group = fields.Many2One('domum.group',
-        'Group', required=True)
+    group = fields.Many2One('domum.group', 'Group', required=True,
+        domain=[
+            ('company', If(Eval(
+                        'context', {}).contains('company'), '=', '!='),
+                Eval('context', {}).get('company', -1)),
+            ])
     type = fields.Selection([
         ('apartment', 'Apartment'),
         ('house', 'House'),
