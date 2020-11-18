@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- This file is part of domum module.
+The COPYRIGHT file at the top level of this repository contains
+the full copyright notices and license terms. -->
+<form col="6">
+    <label name="unit"/>
+    <field name="unit" colspan="5"/>
+    <label name="type"/>
+    <field name="type"/>
+    <label name="name"/>
+    <field name="name"/>
+    <newline/>
+    <label name="description"/>
+    <field name="description" colspan="5"/>
+    <label name="surface"/>
+    <field name="surface"/>
+    <label name="uom"/>
+    <field name="uom"/>
+    <label name="order"/>
+    <field name="order"/>
+</form>

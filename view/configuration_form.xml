@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!-- This file is part of domum module.
+The COPYRIGHT file at the top level of this repository contains
+the full copyright notices and license terms. -->
+<form>
+    <label name="unit_type"/>
+    <field name="unit_type"/>
+</form>
